@@ -201,7 +201,7 @@ function pageTemplate({ title, description, h1, canonical, bodyContent, related,
       {
         "@type": "LocalBusiness",
         name: COMPANY.name,
-        image: `${BASE_URL}/assets/black-pipes-stock.jpeg`,
+        image: `${BASE_URL}/assets/black-pipes-stock-optimized.jpg`,
         url: BASE_URL,
         telephone: COMPANY.phone,
         email: COMPANY.email,
