@@ -205,7 +205,7 @@ function template(page) {
 
         <div class="hero-cta" style="margin:16px 0 6px;">
           <a class="btn btn-primary" href="tel:${phone}">Call Now</a>
-          <a class="btn btn-whatsapp" href="https://wa.me/${whatsapp}?text=Hello%20Shree%20Keshar%20Plastic%2C%20I%20need%20a%20quotation%20for%20${encodeURIComponent(page.product)}" target="_black" rel="noopener">WhatsApp</a>
+          <a class="btn btn-whatsapp" href="https://wa.me/${whatsapp}?text=Hello%20Shree%20Keshar%20Plastic%2C%20I%20need%20a%20quotation%20for%20${encodeURIComponent(page.product)}" target="_blank" rel="noopener">WhatsApp</a>
         </div>
 
         <section>
@@ -234,7 +234,7 @@ function template(page) {
 
   <footer class="footer"><div class="container">© <span id="year"></span> Shree Keshar Plastic</div></footer>
   <a class="float-call" href="tel:${phone}">Call</a>
-  <a class="float-wa" href="https://wa.me/${whatsapp}?text=I%20need%20a%20quotation" target="_black" rel="noopener">WA</a>
+  <a class="float-wa" href="https://wa.me/${whatsapp}?text=I%20need%20a%20quotation" target="_blank" rel="noopener">WA</a>
   <script src="script.js" defer></script>
 </body>
 </html>`;

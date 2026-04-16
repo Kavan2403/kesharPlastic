@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /generated/
 
 Sitemap: https://shreekesharplastic.com/sitemap.xml
