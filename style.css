@@ -844,6 +844,38 @@ footer {
   }
 }
 
+@media (max-width: 639px) {
+  .navbar {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .brand {
+    font-size: 0.86rem;
+    min-width: 0;
+    max-width: 130px;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .brand span {
+    display: none;
+  }
+
+  .navbar .btn {
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+
+  .menu-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+}
+
 @media (min-width: 1080px) {
   section {
     padding: 104px 0;
