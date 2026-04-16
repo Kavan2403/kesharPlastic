@@ -279,7 +279,7 @@ function pageTemplate({ title, description, h1, canonical, bodyContent, related,
     <a href="/index.html" class="brand">${COMPANY.name}</a>
     <nav>
       <a href="tel:${COMPANY.phone}">Call Now</a>
-      <a class="wa" href="https://wa.me/${COMPANY.whatsapp}?text=I%20need%20a%20quotation" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="wa" href="https://wa.me/${COMPANY.whatsapp}?text=I%20need%20a%20quotation" target="_black" rel="noopener">WhatsApp</a>
     </nav>
   </header>
   <main class="wrap">
@@ -294,7 +294,7 @@ function pageTemplate({ title, description, h1, canonical, bodyContent, related,
       <p>Speak with our team for project pricing, size guidance, and delivery timeline.</p>
       <div class="cta-row">
         <a class="btn" href="tel:${COMPANY.phone}">Call ${COMPANY.phone}</a>
-        <a class="btn btn-wa" href="https://wa.me/${COMPANY.whatsapp}?text=I%20need%20a%20quotation" target="_blank" rel="noopener">WhatsApp Enquiry</a>
+        <a class="btn btn-wa" href="https://wa.me/${COMPANY.whatsapp}?text=I%20need%20a%20quotation" target="_black" rel="noopener">WhatsApp Enquiry</a>
       </div>
       <form class="lead-form" onsubmit="return window.SKPL.captureLead(event)">
         <input required name="name" placeholder="Name" />
@@ -319,7 +319,7 @@ function pageTemplate({ title, description, h1, canonical, bodyContent, related,
   </main>
 
   <a class="float-call" href="tel:${COMPANY.phone}" aria-label="Call ${COMPANY.name}">Call</a>
-  <a class="float-wa" href="https://wa.me/${COMPANY.whatsapp}?text=I%20need%20a%20quotation" target="_blank" rel="noopener" aria-label="WhatsApp ${COMPANY.name}">WA</a>
+  <a class="float-wa" href="https://wa.me/${COMPANY.whatsapp}?text=I%20need%20a%20quotation" target="_black" rel="noopener" aria-label="WhatsApp ${COMPANY.name}">WA</a>
   <script src="/generated/assets/seo.js" defer></script>
 </body>
 </html>`;
@@ -369,7 +369,7 @@ function blogTemplate({ title, description, canonical, bodyContent, related }) {
     <a href="/index.html" class="brand">${COMPANY.name}</a>
     <nav>
       <a href="tel:${COMPANY.phone}">Call Now</a>
-      <a class="wa" href="https://wa.me/${COMPANY.whatsapp}?text=Need%20blog-based%20consultation" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="wa" href="https://wa.me/${COMPANY.whatsapp}?text=Need%20blog-based%20consultation" target="_black" rel="noopener">WhatsApp</a>
     </nav>
   </header>
   <main class="wrap">
@@ -388,7 +388,7 @@ function blogTemplate({ title, description, canonical, bodyContent, related }) {
     </section>
   </main>
   <a class="float-call" href="tel:${COMPANY.phone}">Call</a>
-  <a class="float-wa" href="https://wa.me/${COMPANY.whatsapp}?text=Need%20a%20quotation" target="_blank" rel="noopener">WA</a>
+  <a class="float-wa" href="https://wa.me/${COMPANY.whatsapp}?text=Need%20a%20quotation" target="_black" rel="noopener">WA</a>
   <script src="/generated/assets/seo.js" defer></script>
 </body>
 </html>`;
@@ -399,7 +399,7 @@ function seoCss() {
 }
 
 function seoJs() {
-  return `window.SKPL={captureLead:function(e){e.preventDefault();const data=new FormData(e.target);const name=(data.get('name')||'').toString();const phone=(data.get('phone')||'').toString();const city=(data.get('city')||'').toString();const req=(data.get('requirement')||'').toString();const msg='Name: '+name+'%0APhone: '+phone+'%0ACity: '+city+'%0ARequirement: '+req;window.open('https://wa.me/${COMPANY.whatsapp}?text='+msg,'_blank');e.target.reset();alert('Thanks! We have opened WhatsApp to complete your enquiry.');return false;}};document.querySelectorAll('img').forEach(img=>img.setAttribute('loading','lazy'));`;
+  return `window.SKPL={captureLead:function(e){e.preventDefault();const data=new FormData(e.target);const name=(data.get('name')||'').toString();const phone=(data.get('phone')||'').toString();const city=(data.get('city')||'').toString();const req=(data.get('requirement')||'').toString();const msg='Name: '+name+'%0APhone: '+phone+'%0ACity: '+city+'%0ARequirement: '+req;window.open('https://wa.me/${COMPANY.whatsapp}?text='+msg,'_black');e.target.reset();alert('Thanks! We have opened WhatsApp to complete your enquiry.');return false;}};document.querySelectorAll('img').forEach(img=>img.setAttribute('loading','lazy'));`;
 }
 
 function generateServicePages() {
