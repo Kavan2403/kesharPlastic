@@ -1,5 +1,6 @@
 (function () {
-  document.documentElement.classList.add('js');
+  const root = document.documentElement;
+  root.classList.add('js');
   const GA_MEASUREMENT_ID = 'G-08GTRQQTFK';
 
   function trackLead(action, label) {
@@ -28,6 +29,13 @@
   }
 
   const revealEls = document.querySelectorAll('.reveal');
+  function showAllReveal() {
+    revealEls.forEach(function (el) {
+      el.classList.remove('reveal-init');
+      el.classList.add('visible');
+    });
+  }
+
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver(
       function (entries) {
@@ -41,13 +49,16 @@
       { threshold: 0.14 }
     );
     revealEls.forEach(function (el) {
+      el.classList.add('reveal-init');
       observer.observe(el);
     });
   } else {
-    revealEls.forEach(function (el) {
-      el.classList.add('visible');
-    });
+    showAllReveal();
   }
+
+  window.addEventListener('error', function () {
+    showAllReveal();
+  });
 
   const counters = document.querySelectorAll('.counter');
   const stats = document.querySelector('.stats-grid');

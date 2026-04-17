@@ -557,12 +557,12 @@ th {
   transition: 0.65s ease;
 }
 
-.js .reveal {
+.js .reveal.reveal-init {
   opacity: 0;
   transform: translateY(20px);
 }
 
-.js .reveal.visible {
+.js .reveal.reveal-init.visible {
   opacity: 1;
   transform: translateY(0);
 }
