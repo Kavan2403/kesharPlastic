@@ -1,5 +1,16 @@
 (function () {
   document.documentElement.classList.add('js');
+  const GA_MEASUREMENT_ID = 'G-08GTRQQTFK';
+
+  function trackLead(action, label) {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', action, {
+        event_category: 'lead_generation',
+        event_label: label,
+        send_to: GA_MEASUREMENT_ID
+      });
+    }
+  }
 
   const menuBtn = document.getElementById('menuBtn');
   const mobileNav = document.getElementById('mobileNav');
@@ -85,9 +96,22 @@
       const message = encodeURIComponent(
         'Enquiry from website\nName: ' + name + '\nPhone: ' + phone + '\nCity: ' + city + '\nRequirement: ' + requirement
       );
-      window.open('https://wa.me/919426391608?text=' + message, '_black');
+      trackLead('generate_lead', 'website_form_submit');
+      window.open('https://wa.me/919426391608?text=' + message, '_blank', 'noopener');
       form.reset();
       alert('Thanks! We have opened WhatsApp to complete your enquiry.');
+    });
+  });
+
+  document.querySelectorAll('a[href^="tel:"]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      trackLead('phone_call_click', link.textContent.trim() || 'call_link');
+    });
+  });
+
+  document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp.com"]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      trackLead('whatsapp_click', link.textContent.trim() || 'whatsapp_link');
     });
   });
 

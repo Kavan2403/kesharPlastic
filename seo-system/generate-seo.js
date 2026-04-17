@@ -399,7 +399,7 @@ function seoCss() {
 }
 
 function seoJs() {
-  return `window.SKPL={captureLead:function(e){e.preventDefault();const data=new FormData(e.target);const name=(data.get('name')||'').toString();const phone=(data.get('phone')||'').toString();const city=(data.get('city')||'').toString();const req=(data.get('requirement')||'').toString();const msg='Name: '+name+'%0APhone: '+phone+'%0ACity: '+city+'%0ARequirement: '+req;window.open('https://wa.me/${COMPANY.whatsapp}?text='+msg,'_black');e.target.reset();alert('Thanks! We have opened WhatsApp to complete your enquiry.');return false;}};document.querySelectorAll('img').forEach(img=>img.setAttribute('loading','lazy'));`;
+  return `window.SKPL={captureLead:function(e){e.preventDefault();const data=new FormData(e.target);const name=(data.get('name')||'').toString();const phone=(data.get('phone')||'').toString();const city=(data.get('city')||'').toString();const req=(data.get('requirement')||'').toString();const msg='Name: '+name+'%0APhone: '+phone+'%0ACity: '+city+'%0ARequirement: '+req;window.open('https://wa.me/${COMPANY.whatsapp}?text='+msg,'_blank');e.target.reset();alert('Thanks! We have opened WhatsApp to complete your enquiry.');return false;}};document.querySelectorAll('img').forEach(img=>img.setAttribute('loading','lazy'));`;
 }
 
 function generateServicePages() {
