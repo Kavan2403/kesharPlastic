@@ -10,7 +10,8 @@ const COMPANY = {
   phone: "+919426391608",
   email: "info@shreekesharplastic.com",
   whatsapp: "919426391608",
-  address: "Ahmedabad, Gujarat, India",
+  address: "101,Shreenath Shoping Center, Nr.Bhumaria Kuva, Lambha Turning, Narol-Aslali Road, Narol, Ahmedabad, Gujarat, India",
+  streetAddress: "101, Shreenath Shoping Center, Nr. Bhumaria Kuva, Lambha Turning, Narol-Aslali Road, Narol",
   geo: { lat: 23.0225, lng: 72.5714 },
 };
 
@@ -207,6 +208,7 @@ function pageTemplate({ title, description, h1, canonical, bodyContent, related,
         email: COMPANY.email,
         address: {
           "@type": "PostalAddress",
+          streetAddress: COMPANY.streetAddress,
           addressLocality: "Ahmedabad",
           addressRegion: "Gujarat",
           addressCountry: "IN",

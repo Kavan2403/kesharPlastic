@@ -123,6 +123,7 @@ function schema(page) {
         telephone: phone,
         address: {
           '@type': 'PostalAddress',
+          streetAddress: '101, Shreenath Shoping Center, Nr. Bhumaria Kuva, Lambha Turning, Narol-Aslali Road, Narol',
           addressLocality: 'Ahmedabad',
           addressRegion: 'Gujarat',
           addressCountry: 'IN'
