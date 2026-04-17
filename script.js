@@ -1,4 +1,6 @@
 (function () {
+  document.documentElement.classList.add('js');
+
   const menuBtn = document.getElementById('menuBtn');
   const mobileNav = document.getElementById('mobileNav');
 
