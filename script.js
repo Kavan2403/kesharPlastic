@@ -1,223 +1,210 @@
-(function(){
-  document.documentElement.classList.add('js');
+(function () {
+  'use strict';
 
-  var MEASUREMENT_ID = 'G-08GTRQQTFK';
-  var navigationLoaderActive = false;
+  var types = {
+    black: 'Black Pipes',
+    cores: 'Plastic Replacement Cores',
+    pvc: 'PVC Pipes',
+    hdpe: 'HDPE Pipes',
+    installation: 'Farm pipeline installation',
+    guidance: 'Help choosing a pipe or core'
+  };
 
-  function track(action, label) {
-    if (typeof window.gtag === 'function') {
-      window.gtag('event', action, {
-        event_category: 'lead_generation',
-        event_label: label || 'website',
-        send_to: MEASUREMENT_ID
-      });
-    }
+  function track(name, offering) {
+    if (window.skpAnalytics) window.skpAnalytics.track(name, offering);
   }
 
-  function sanitize(value) {
+  function reducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function showNavigationCue() {
+    if (reducedMotion() || document.querySelector('.navigation-cue')) return;
+    var cue = document.createElement('div');
+    cue.className = 'navigation-cue';
+    cue.setAttribute('role', 'status');
+    cue.innerHTML = '<svg viewBox="0 0 100 50" fill="none" aria-hidden="true"><path d="M5 40V12H42V38H75V12H95" stroke="#1c3d5a" stroke-width="6" pathLength="120"/></svg><span>Connecting the next page</span>';
+    document.body.appendChild(cue);
+    window.setTimeout(function () { cue.remove(); }, 650);
+  }
+
+  function initNavigation() {
+    var menu = document.querySelector('.mobile-nav');
+    if (menu) {
+      menu.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          menu.open = false;
+          menu.querySelector('summary').focus();
+        }
+      });
+      document.addEventListener('click', function (event) {
+        if (menu.open && !menu.contains(event.target)) menu.open = false;
+      });
+      window.matchMedia('(min-width: 1180px)').addEventListener('change', function (event) {
+        if (event.matches) menu.open = false;
+      });
+    }
+    try {
+      if (sessionStorage.getItem('skp-page-transition') === '1') {
+        sessionStorage.removeItem('skp-page-transition');
+        showNavigationCue();
+      }
+    } catch (_) { /* Navigation does not require storage access. */ }
+    document.addEventListener('click', function (event) {
+      var link = event.target.closest('a[href]');
+      if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      var url = new URL(link.href, location.href);
+      var offering = link.dataset.offering || document.body.dataset.offering;
+      if (url.protocol === 'tel:') track('phone_call_click', offering);
+      if (url.protocol === 'mailto:') track('email_click', offering);
+      if (url.hostname === 'wa.me') track(link.id === 'quote-whatsapp' ? 'whatsapp_enquiry_handoff' : 'whatsapp_click', offering);
+      if (url.origin !== location.origin || !/^https?:$/.test(url.protocol) || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+      if (url.pathname === location.pathname && url.search === location.search) return;
+      if (menu) menu.open = false;
+      try { sessionStorage.setItem('skp-page-transition', '1'); } catch (_) { /* Best-effort visual cue only. */ }
+      showNavigationCue();
+      // Allow the browser to navigate immediately, including when JavaScript fails.
+    });
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) document.querySelectorAll('.navigation-cue').forEach(function (cue) { cue.remove(); });
+    });
+  }
+
+  function clean(value) {
     return String(value || '').replace(/\s+/g, ' ').trim();
   }
 
-  function prefersReducedMotion() {
-    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }
+  function initQuoteForm() {
+    var form = document.querySelector('[data-quote-form]');
+    if (!form) return;
+    var select = form.elements.requirement_type;
+    var requested = new URLSearchParams(location.search).get('product');
+    if (Object.hasOwn(types, requested || '')) select.value = requested;
+    var status = document.getElementById('quote-status');
+    var handoff = document.getElementById('quote-handoff');
+    var preview = document.getElementById('quote-preview');
+    var link = document.getElementById('quote-whatsapp');
+    var preparedMessage = '';
+    var preparedOffering = '';
+    var sending = false;
+    var sentDetails = '';
+    var emailAvailable = false;
+    var send = document.getElementById('quote-send');
+    var availability = document.getElementById('email-availability');
+    var fieldset = form.querySelector('fieldset');
 
-  function createPreloader() {
-    var existing = document.querySelector('.preloader');
-    if (existing) {
-      if (!existing.classList.contains('is-hidden')) return existing;
-      existing.remove();
+    function notify(message, error) {
+      status.textContent = message;
+      status.dataset.error = String(Boolean(error));
+      status.hidden = false;
     }
 
-    var el = document.createElement('div');
-    el.className = 'preloader';
-    el.setAttribute('role', 'status');
-    el.setAttribute('aria-live', 'polite');
-    el.innerHTML = '<svg width="360" height="220" viewBox="0 0 600 360" fill="none" aria-hidden="true"><path pathLength="100" d="M80 290 L80 130 L250 130 L250 240 L430 240 L430 110 L535 110" stroke="#1c3d5a" stroke-width="26" stroke-linecap="butt" fill="none" style="stroke-dasharray:100;stroke-dashoffset:100;animation:sk-draw 1.1s ease-out forwards"></path><path d="M80 290 L80 130 L250 130 L250 240 L430 240 L430 110 L535 110" stroke="#86c2f0" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="6 28" style="animation:sk-flow .9s linear 1s infinite"></path></svg><div class="preloader-text">Assembling the pipeline</div>';
-    document.body.appendChild(el);
-    return el;
-  }
+    if (form.dataset.emailDelivery === 'disabled') {
+      send.hidden = true;
+      availability.textContent = 'Prepare your enquiry below, then review and send it in WhatsApp. You can also call or email info@shreekesharplastic.com directly.';
+    } else fetch('/api/enquiry', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
+      .then(function (response) { if (!response.ok) throw new Error(); return response.json(); })
+      .then(function (data) {
+        emailAvailable = data.available === true;
+        send.hidden = !emailAvailable;
+        send.disabled = !emailAvailable;
+        availability.textContent = emailAvailable
+          ? 'Send directly to our business inbox. No email app or WhatsApp is required.'
+          : 'Online email delivery is not enabled yet. Please use WhatsApp, call, or email info@shreekesharplastic.com directly.';
+      }).catch(function () {
+        availability.textContent = 'Online email delivery is unavailable here. Please use WhatsApp, call, or email info@shreekesharplastic.com directly.';
+      });
 
-  function hidePreloader(el) {
-    if (!el) return;
-    el.classList.add('is-hidden');
-    setTimeout(function(){
-      if (el.parentNode) el.remove();
-    }, 500);
-  }
-
-  function hasSeenInitialPreloader() {
-    try {
-      if (sessionStorage.getItem('sk-preloader-seen')) return true;
-      sessionStorage.setItem('sk-preloader-seen', '1');
-      return false;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function initPreloader() {
-    if (prefersReducedMotion() || hasSeenInitialPreloader()) return;
-    var el = createPreloader();
-    setTimeout(function(){ hidePreloader(el); }, 1350);
-  }
-
-  function shouldShowNavigationLoader(event, link) {
-    if (!link || !link.href) return false;
-    if (event.defaultPrevented) return false;
-    if (event.button !== 0) return false;
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return false;
-    if (link.hasAttribute('download')) return false;
-    if (link.target && link.target.toLowerCase() !== '_self') return false;
-
-    var targetUrl;
-    try {
-      targetUrl = new URL(link.href, window.location.href);
-    } catch (e) {
-      return false;
+    function validateFields() {
+      var phone = form.elements.phone;
+      var digits = phone.value.replace(/\D/g, '');
+      phone.setCustomValidity(/^\+?[0-9 ]+$/.test(phone.value) && digits.length >= 7 && digits.length <= 15 ? '' : 'Enter a phone number with 7 to 15 digits, using spaces or a leading + if needed.');
+      form.elements.full_name.setCustomValidity(clean(form.elements.full_name.value) ? '' : 'Please enter your name.');
+      form.elements.message.setCustomValidity(clean(form.elements.message.value) ? '' : 'Please describe your requirement.');
     }
 
-    if (targetUrl.origin !== window.location.origin) return false;
-    if (targetUrl.protocol !== 'http:' && targetUrl.protocol !== 'https:') return false;
-
-    var sameDocument = targetUrl.pathname === window.location.pathname && targetUrl.search === window.location.search;
-    if (sameDocument && targetUrl.hash) return false;
-    if (targetUrl.href === window.location.href) return false;
-
-    return true;
-  }
-
-  function initPageTransitions() {
-    document.addEventListener('click', function(event) {
-      var link = event.target.closest ? event.target.closest('a[href]') : null;
-      if (!shouldShowNavigationLoader(event, link)) return;
-      if (prefersReducedMotion()) return;
-
+    function invalidateMessage() {
+      if (handoff.hidden) return;
+      handoff.hidden = true;
+      preparedMessage = '';
+      preparedOffering = '';
+      preview.textContent = '';
+      status.textContent = 'Details changed. Prepare the message again before opening WhatsApp.';
+      status.hidden = false;
+    }
+    form.addEventListener('input', invalidateMessage);
+    form.addEventListener('change', invalidateMessage);
+    form.addEventListener('input', validateFields);
+    link.addEventListener('click', function () {
+      if (!preparedMessage || handoff.hidden) return;
+      // A button avoids exposing personal message text to GA4 outbound-link capture.
+      window.open('https://wa.me/919426391608?text=' + encodeURIComponent(preparedMessage), '_blank', 'noopener,noreferrer');
+      track('whatsapp_enquiry_handoff', preparedOffering);
+    });
+    document.getElementById('quote-prepare').addEventListener('click', function () {
+      if (sending) return;
+      validateFields();
+      if (!form.reportValidity()) return;
+      var data = new FormData(form);
+      var offering = String(data.get('requirement_type'));
+      if (!Object.hasOwn(types, offering)) return;
+      var lines = [
+        'Hello Shree Keshar Plastic, I would like to discuss a requirement.',
+        'Name: ' + clean(data.get('full_name')),
+        'Phone: ' + clean(data.get('phone')),
+        'Product / service: ' + types[offering]
+      ];
+      [['company', 'Company'], ['work_email', 'Work email'], ['city', 'City / farm location'], ['buyer_type', 'Buyer type'], ['size_quantity', 'Size / quantity'], ['message', 'Requirement']].forEach(function (field) {
+        var value = clean(data.get(field[0]));
+        if (value) lines.push(field[1] + ': ' + value);
+      });
+      var message = lines.join('\n');
+      preview.textContent = message;
+      preparedMessage = message;
+      preparedOffering = offering;
+      notify('Your WhatsApp message is ready to review. It has not been sent through WhatsApp yet.');
+      handoff.hidden = false;
+      track('enquiry_message_prepared', offering);
+      link.focus({ preventScroll: true });
+      handoff.scrollIntoView({ behavior: reducedMotion() ? 'instant' : 'smooth', block: 'nearest' });
+    });
+    form.addEventListener('submit', async function (event) {
       event.preventDefault();
-      if (navigationLoaderActive) return;
-      navigationLoaderActive = true;
-
-      createPreloader();
-      setTimeout(function(){
-        window.location.href = link.href;
-      }, 650);
+      if (sending || !emailAvailable) return;
+      validateFields();
+      if (!form.reportValidity()) return;
+      var details = JSON.stringify(Object.fromEntries(new FormData(form)));
+      if (details === sentDetails) { notify('This enquiry was already accepted. Please contact us directly if you need to follow up.'); return; }
+      sending = true;
+      fieldset.disabled = true;
+      link.disabled = true;
+      handoff.hidden = true;
+      send.textContent = 'Sending enquiry...';
+      form.setAttribute('aria-busy', 'true');
+      notify('Sending your enquiry. Please keep this page open.');
+      try {
+        var response = await fetch('/api/enquiry', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: details, signal: AbortSignal.timeout(20000) });
+        var result = await response.json();
+        if (!response.ok || result.accepted !== true) throw new Error(typeof result.message === 'string' ? result.message : 'Unable to confirm acceptance. Please contact us directly.');
+        sentDetails = details;
+        notify('Thank you. Your enquiry was accepted for email delivery to info@shreekesharplastic.com. This is not yet a quotation or confirmation of inbox delivery. Reference: ' + result.reference);
+        track('generate_lead', form.elements.requirement_type.value);
+      } catch (error) {
+        notify(error.name === 'TimeoutError' || error instanceof TypeError || error instanceof SyntaxError
+          ? 'We could not confirm the result. Your details are still here. Please call or email us before resending to avoid a duplicate.' : error.message, true);
+      } finally {
+        sending = false;
+        fieldset.disabled = false;
+        link.disabled = false;
+        send.textContent = 'Send enquiry by email';
+        form.removeAttribute('aria-busy');
+      }
     });
-
-    window.addEventListener('pageshow', function(event) {
-      if (!event.persisted) return;
-      navigationLoaderActive = false;
-      document.querySelectorAll('.preloader').forEach(function(el){ el.remove(); });
-    });
+    // Keep the form disabled without JavaScript; direct contact links always work.
+    fieldset.disabled = false;
   }
 
-  function initMenu() {
-    var btn = document.querySelector('.menu-toggle');
-    var menu = document.getElementById('mobile-menu');
-    if (!btn || !menu) return;
-
-    btn.addEventListener('click', function(){
-      var open = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!open));
-      menu.classList.toggle('is-open', !open);
-    });
-
-    menu.querySelectorAll('a').forEach(function(a){
-      a.addEventListener('click', function(){
-        btn.setAttribute('aria-expanded', 'false');
-        menu.classList.remove('is-open');
-      });
-    });
-  }
-
-  function buildMessage(form) {
-    var data = new FormData(form);
-    return encodeURIComponent([
-      'New enquiry from website',
-      'Page: ' + location.pathname,
-      'Name: ' + sanitize(data.get('full_name')),
-      'Phone: ' + sanitize(data.get('phone')),
-      'City: ' + sanitize(data.get('city')),
-      'Buyer type: ' + sanitize(data.get('buyer_type')),
-      'Product / service: ' + sanitize(data.get('requirement_type')),
-      'Size / quantity: ' + sanitize(data.get('size_quantity')),
-      'Preferred contact: ' + sanitize(data.get('preferred_contact_method')),
-      'Message: ' + sanitize(data.get('message'))
-    ].join('\n'));
-  }
-
-  function initForms() {
-    document.querySelectorAll('form.js-quote-form').forEach(function(form){
-      form.addEventListener('submit', function(e){
-        e.preventDefault();
-        if (!form.reportValidity()) return;
-        track('generate_lead', form.dataset.context || location.pathname);
-        window.open('https://wa.me/919426391608?text=' + buildMessage(form), '_blank', 'noopener');
-        form.reset();
-      });
-    });
-  }
-
-  function initTracking() {
-    document.querySelectorAll('a[href^="tel:"]').forEach(function(a){
-      a.addEventListener('click', function(){
-        track('phone_call_click', sanitize(a.textContent) || a.href);
-      });
-    });
-
-    document.querySelectorAll('a[href*="wa.me"]').forEach(function(a){
-      a.addEventListener('click', function(){
-        track('whatsapp_click', sanitize(a.textContent) || a.href);
-      });
-    });
-  }
-
-  function initReveal() {
-    var els = [].slice.call(document.querySelectorAll('.reveal'));
-    if (!('IntersectionObserver' in window)) return;
-
-    els.forEach(function(el){
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity .65s cubic-bezier(.2,.7,.2,1), transform .65s cubic-bezier(.2,.7,.2,1)';
-    });
-
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'none';
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: .12 });
-
-    els.forEach(function(el){ io.observe(el); });
-    setTimeout(function(){
-      els.forEach(function(el){
-        el.style.opacity = '1';
-        el.style.transform = 'none';
-      });
-    }, 2500);
-  }
-
-  function initVideo() {
-    document.querySelectorAll('video').forEach(function(v){
-      v.muted = true;
-      var p = v.play();
-      if (p && p.catch) p.catch(function(){});
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    initPreloader();
-    initPageTransitions();
-    initMenu();
-    initForms();
-    initTracking();
-    initReveal();
-    initVideo();
-
-    var year = document.getElementById('year');
-    if (year) year.textContent = new Date().getFullYear();
-  });
+  initQuoteForm();
+  initNavigation();
 })();

@@ -1,3 +1,5 @@
+throw new Error('Legacy city-page generation is disabled pending content and indexing review. Use node scripts/build-site.mjs for the maintained website.');
+
 const fs = require("fs");
 const path = require("path");
 

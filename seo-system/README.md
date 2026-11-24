@@ -1,4 +1,22 @@
-# SEO Automation System (Static)
+# Legacy SEO Automation (Disabled)
+
+Do not run these historical generators. Both entry points are guarded because they
+would recreate unverified claims or overwrite the reviewed commercial pages.
+The files below document the old system, not the current publishing workflow.
+
+The maintained, dependency-free static build is:
+
+```bash
+node scripts/build-site.mjs
+node --test tests/site.test.mjs
+node scripts/preview-server.mjs
+```
+
+Edit `site/catalogue.mjs`, `site/pages.mjs`, `site/components.mjs` and
+`site/layout.mjs` for the current site. Existing `/generated/` content remains
+outside the preview and requires a separate URL-disposition review before launch.
+
+## Historical Documentation
 
 This generator builds scalable local SEO pages and blogs for **Shree Keshar Plastic** without any backend.
 

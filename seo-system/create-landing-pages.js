@@ -1,3 +1,5 @@
+throw new Error('Legacy generator disabled: it would overwrite the reviewed website. Use node scripts/build-site.mjs instead.');
+
 const fs = require('fs');
 const path = require('path');
 

@@ -1,0 +1,17 @@
+# Keep the existing GitHub Pages build, but publish only website material.
+exclude:
+  - "*.md"
+  - "**/README.md"
+  - cloudflare
+  - site
+  - scripts
+  - tests
+  - seo-system
+  - generated
+  - video-campaign
+  - dist
+  - wrangler.jsonc
+  - node_modules
+  - vendor
+  - Gemfile
+  - Gemfile.lock
