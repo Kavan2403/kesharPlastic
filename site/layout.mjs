@@ -103,7 +103,7 @@ export function renderPage(page) {
   <link rel="stylesheet" href="core-design.css">
   <script type="application/ld+json">${schema(page)}</script>
   <script src="analytics.js" defer></script>
-  <script src="script.js" defer></script>
+  <script src="script.js${page.file === 'contact.html' ? '?v=mail-api-20261124' : ''}" defer></script>
   ${page.coreExperience ? '<script type="module" src="core-scene.js"></script>' : ''}
 </head>
 <body${page.contact ? ' class="contact-page"' : ''} data-page="${escape(page.file)}" data-offering="${escape(page.offering || '')}">

@@ -25,6 +25,7 @@ test('production SEO settings are not overwritten by preview noindex metadata', 
 test('live form uses the verified API while privacy discloses enquiry processors', async () => {
   const contact = await read('contact.html');
   assert.match(contact, /data-email-delivery="enabled"/);
+  assert.match(contact, /src="script\.js\?v=mail-api-20261124"/);
   assert.match(contact, /data-enquiry-endpoint="https:\/\/shree-keshar-plastic\.autumn-haze-c280\.workers\.dev\/api\/enquiry"/);
   assert.match(contact, /id="quote-send" disabled hidden/);
   const privacy = await read('privacy.html');
