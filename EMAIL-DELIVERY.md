@@ -87,5 +87,21 @@ Official references:
 
 The preview test with reference `4347202a-ff34-4301-8b4e-a8fd37c44dfb` was accepted
 by Hostinger and verified in the business inbox on 24 November 2026. Its unique
-marker was `SKP-API-PREVIEW-2026-11-24T15-12-14-311Z`. Production verification is
-pending; preview delivery alone is not a production launch sign-off.
+marker was `SKP-API-PREVIEW-2026-11-24T15-12-14-311Z`.
+
+The live GitHub Pages form was then submitted through the browser at a 390px
+viewport without opening WhatsApp. Reference
+`720ab4a2-37d4-4fd0-98a2-cfc404772d37` and marker
+`SKP-LIVE-EMAIL-2026-11-24T15-18-26-531Z` matched the received Hostinger INBOX
+message, including the submitted optional company, work email and location.
+Both test messages explicitly identify themselves as verification, not enquiries.
+
+Release `89c126e` completed GitHub Pages build `45423877659`. Contact HTML, the
+versioned form script and privacy HTML matched the local production build.
+83 automated tests passed. Form layout checks passed at 320, 390, 768 and 1280px,
+with no horizontal overflow and 46px-high action buttons. No browser errors were
+observed. These viewport checks are not physical-device or full WCAG certification.
+
+Nameservers remain `cosmos.dns-parking.com` and `nova.dns-parking.com`; MX remains
+Hostinger. Credentials stayed in encrypted Worker secrets. No DNS, subscription,
+mailbox routing, tracking consent, or advertising configuration was changed.
