@@ -74,7 +74,7 @@ test('email submission and optional WhatsApp handoff are explicit and safe witho
   assert.match(html, /<fieldset disabled>/);
   assert.match(html, /method="post"/);
   assert.match(html, /Send enquiry by email/);
-  assert.match(html, /action="\/api\/enquiry"/);
+  assert.match(html, /action="https:\/\/shree-keshar-plastic\.autumn-haze-c280\.workers\.dev\/api\/enquiry"/);
   assert.match(html, /<noscript>/);
   assert.match(html, /pattern="\[\+0-9 \]\{7,25\}"/);
   assert.match(js, /digits\.length >= 7 && digits\.length <= 15/);

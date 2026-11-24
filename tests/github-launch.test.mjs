@@ -22,12 +22,14 @@ test('production SEO settings are not overwritten by preview noindex metadata', 
   assert.match(await read('404.html'), /name="robots" content="noindex"/);
 });
 
-test('live form and privacy copy disclose manual contact rather than working SMTP', async () => {
+test('live form uses the verified API while privacy discloses enquiry processors', async () => {
   const contact = await read('contact.html');
-  assert.match(contact, /data-email-delivery="disabled"/);
+  assert.match(contact, /data-email-delivery="enabled"/);
+  assert.match(contact, /data-enquiry-endpoint="https:\/\/shree-keshar-plastic\.autumn-haze-c280\.workers\.dev\/api\/enquiry"/);
   assert.match(contact, /id="quote-send" disabled hidden/);
   const privacy = await read('privacy.html');
-  assert.match(privacy, /Direct form-to-email delivery is currently disabled/);
+  assert.doesNotMatch(privacy, /Direct form-to-email delivery is currently disabled/);
   assert.match(privacy, /GitHub Pages serves this public website/);
-  assert.doesNotMatch(privacy, /our Cloudflare enquiry service/);
+  assert.match(privacy, /our Cloudflare enquiry service/);
+  assert.match(privacy, /Hostinger/);
 });

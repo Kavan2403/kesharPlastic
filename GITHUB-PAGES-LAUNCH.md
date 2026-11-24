@@ -19,17 +19,15 @@ Hostinger mailbox or Cloudflare custom-domain change is part of this launch.
 
 ## Contact Behavior
 
-The form has `data-email-delivery="disabled"`: no email availability request is
-made to GitHub Pages, and the direct-send button remains hidden and disabled.
-The visitor can prepare and review a WhatsApp message locally, then explicitly
-open WhatsApp and send it there. Phone and `mailto:` links remain available.
-Preparation is not a delivered enquiry and does not emit `generate_lead`.
+The initial launch kept email disabled while SMTP connectivity was unresolved.
+The owner subsequently approved Hostinger Mail API delivery using a mailbox-scoped
+encrypted token in the existing Cloudflare Worker. The preview enquiry was
+verified in the Hostinger inbox before preparing production activation.
+See `EMAIL-DELIVERY.md` for the current transport, verification and rollback.
 
-The separate Cloudflare preview has `EMAIL_ENABLED=false` after the owner-approved
-rollback. Its encrypted mailbox secret remains in Cloudflare, not in this repo.
-The SMTP attempt failed before authentication because Hostinger's current SMTP
-address resolves inside Cloudflare's blocked outbound TCP destination ranges.
-Do not enable direct email or change DNS as a side effect of publishing this site.
+The website remains static on GitHub Pages. Its form calls the separately hosted
+Worker with exact-origin CORS; it does not need a GitHub server or DNS change.
+WhatsApp preparation remains optional and does not emit an accepted-email lead.
 
 ## Rebuilding
 

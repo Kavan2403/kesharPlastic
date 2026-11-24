@@ -92,6 +92,9 @@
     var send = document.getElementById('quote-send');
     var availability = document.getElementById('email-availability');
     var fieldset = form.querySelector('fieldset');
+    var endpoint = form.dataset.enquiryEndpoint || '/api/enquiry';
+    var approvedEndpoint = endpoint === '/api/enquiry'
+      || endpoint === 'https://shree-keshar-plastic.autumn-haze-c280.workers.dev/api/enquiry';
 
     function notify(message, error) {
       status.textContent = message;
@@ -99,10 +102,10 @@
       status.hidden = false;
     }
 
-    if (form.dataset.emailDelivery === 'disabled') {
+    if (form.dataset.emailDelivery === 'disabled' || !approvedEndpoint) {
       send.hidden = true;
       availability.textContent = 'Prepare your enquiry below, then review and send it in WhatsApp. You can also call or email info@shreekesharplastic.com directly.';
-    } else fetch('/api/enquiry', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
+    } else fetch(endpoint, { credentials: 'omit', redirect: 'error', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
       .then(function (response) { if (!response.ok) throw new Error(); return response.json(); })
       .then(function (data) {
         emailAvailable = data.available === true;
@@ -183,7 +186,7 @@
       form.setAttribute('aria-busy', 'true');
       notify('Sending your enquiry. Please keep this page open.');
       try {
-        var response = await fetch('/api/enquiry', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        var response = await fetch(endpoint, { method: 'POST', credentials: 'omit', redirect: 'error', headers: { 'Content-Type': 'application/json' },
           body: details, signal: AbortSignal.timeout(20000) });
         var result = await response.json();
         if (!response.ok || result.accepted !== true) throw new Error(typeof result.message === 'string' ? result.message : 'Unable to confirm acceptance. Please contact us directly.');

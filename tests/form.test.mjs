@@ -19,19 +19,21 @@ class Element {
   focus() {}
   scrollIntoView() {}
 }
-async function harness(post = async () => Response.json({ accepted: true, reference: 'test-reference' }), available = true, staticOnly = false) {
+async function harness(post = async () => Response.json({ accepted: true, reference: 'test-reference' }), available = true, staticOnly = false, endpoint) {
   const nodes = Object.fromEntries(['quote-status', 'quote-handoff', 'quote-preview', 'quote-whatsapp', 'quote-send', 'email-availability', 'quote-prepare'].map(id => [id, new Element()]));
   nodes['quote-handoff'].hidden = true;
   nodes['quote-send'].disabled = true;
   const fieldset = new Element();
   const form = new Element();
   if (staticOnly) form.dataset.emailDelivery = 'disabled';
+  if (endpoint) form.dataset.enquiryEndpoint = endpoint;
   form.elements = Object.fromEntries(Object.entries({ full_name: 'Test buyer', phone: '+91 90000 00000',
     company: '', work_email: '', requirement_type: 'cores', city: '', message: 'Synthetic test only', buyer_type: '', size_quantity: '', website: '' }).map(([key, value]) => [key, Object.assign(new Element(), { value })]));
   form.querySelector = () => fieldset;
   form.reportValidity = () => !Object.values(form.elements).some(field => field.validationMessage);
   const events = [];
   const requests = [];
+  const destinations = [];
   let availabilityRequests = 0;
   const document = { querySelector: selector => selector === '[data-quote-form]' ? form : null, getElementById: id => nodes[id], addEventListener() {} };
   runInNewContext(source, { document, URLSearchParams, AbortSignal, TypeError, SyntaxError,
@@ -39,13 +41,14 @@ async function harness(post = async () => Response.json({ accepted: true, refere
     window: { skpAnalytics: { track: (...args) => events.push(args) }, addEventListener() {}, matchMedia: () => ({ matches: false }) },
     FormData: class { constructor() { return new Map(Object.entries(form.elements).map(([key, field]) => [key, field.value])); } },
     fetch: async (url, options) => {
+      destinations.push({ url, credentials: options.credentials, redirect: options.redirect });
       if (options?.method === 'POST') { requests.push(JSON.parse(options.body)); return post(); }
       availabilityRequests++;
       return Response.json({ available });
     }
   });
   await new Promise(resolve => setImmediate(resolve));
-  return { form, fieldset, nodes, requests, events, availabilityRequests };
+  return { form, fieldset, nodes, requests, events, availabilityRequests, destinations };
 }
 
 test('static hosting makes no email API requests and keeps WhatsApp preparation available', async () => {
@@ -59,6 +62,18 @@ test('static hosting makes no email API requests and keeps WhatsApp preparation 
   assert.equal(h.nodes['quote-handoff'].hidden, false);
   assert.match(h.nodes['quote-preview'].textContent, /Synthetic test only/);
   assert.ok(!h.events.some(([name]) => name === 'generate_lead'));
+});
+
+test('cross-origin delivery uses only the approved Worker without cookies or redirects', async () => {
+  const endpoint = 'https://shree-keshar-plastic.autumn-haze-c280.workers.dev/api/enquiry';
+  const h = await harness(undefined, true, false, endpoint);
+  await h.form.emit('submit');
+  assert.equal(h.destinations.length, 2);
+  for (const request of h.destinations) assert.deepEqual(request, { url: endpoint, credentials: 'omit', redirect: 'error' });
+  const invalid = await harness(undefined, true, false, 'https://attacker.test/collect');
+  await invalid.form.emit('submit');
+  assert.equal(invalid.destinations.length, 0);
+  assert.equal(invalid.nodes['quote-send'].hidden, true);
 });
 
 test('form sends only on explicit submit and records a lead only after acceptance', async () => {
