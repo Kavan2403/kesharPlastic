@@ -8,6 +8,7 @@ const read = file => readFile(new URL('../' + file, import.meta.url), 'utf8');
 test('GitHub Pages launch keeps its domain and excludes backend and draft directories', async () => {
   assert.equal((await read('CNAME')).trim(), 'shreekesharplastic.com');
   const config = await read('_config.yml');
+  assert.match(config, /include:\n  - sitemap\.xml\n/);
   for (const name of ['cloudflare', 'site', 'scripts', 'tests', 'seo-system', 'generated', 'video-campaign', 'dist', 'wrangler.jsonc']) {
     assert.ok(config.includes(`  - ${name}\n`), name);
   }

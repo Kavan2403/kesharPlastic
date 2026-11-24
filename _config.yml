@@ -1,4 +1,6 @@
 # Keep the existing GitHub Pages build, but publish only website material.
+include:
+  - sitemap.xml
 exclude:
   - "*.md"
   - "**/README.md"
